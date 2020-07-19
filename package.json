@@ -7,6 +7,7 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.5.0",
+    "npm-watch": "^0.6.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.11.0",
@@ -22,7 +23,8 @@
     "deploy": "gh-pages -d build",
     "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
-    "cypress": "cypress open"
+    "cypress": "cypress open",
+    "watch": "npm-watch"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -38,5 +40,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "js,jsx"
+    }
   }
 }

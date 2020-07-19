@@ -7,7 +7,7 @@ import CreateRoom from './CreateRoom.jsx';
 const App = () => (
   <BrowserRouter>
     <Route exact path='/' render={HomePage} />
-    <Route path='/createroom' render={CreateRoom} />
+    <Route path='/createroom' component={CreateRoom} />
   </BrowserRouter>
   
 );
