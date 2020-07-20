@@ -6,8 +6,8 @@ import CreateRoom from './CreateRoom.jsx';
 import GameRoom from './GameRoom.jsx';
 
 class App extends React.Component{
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
     this.state = {
       rooms: [],
     }

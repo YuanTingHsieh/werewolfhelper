@@ -1,5 +1,17 @@
 import React from 'react';
 
+const charactersMapping = {
+  seer: "預言家",
+  witch: "女巫",
+  hunter: "獵人",
+  guard: "守衛",
+  wolf: "狼人",
+  wolfKing: "狼王",
+  whiteWolfKing: "白狼王",
+  wolfBeauty: "狼美人",
+  villager: "平民",
+};
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -16,12 +28,12 @@ function parseJSON(response) {
 }
 
 export default class GameRoom extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       valid: false,
       players: 0,
-      characters: "",
+      characters: {},
     };
   }
 
@@ -53,11 +65,16 @@ export default class GameRoom extends React.Component {
       return (
         <div>房間 {this.props.match.params.roomid} 不存在。 請先創建房間。</div>
       );
+    let boardstr = "";
+    Object.keys(this.state.characters).forEach(k => {
+      let number = this.state.characters[k];
+      boardstr += number > 0 ? (charactersMapping[k] + number) : "";
+    })
     return (
       <div>
         This is room {this.props.match.params.roomid}.
         We have {this.state.players} players.
-        Board {this.state.characters}.
+        Board {boardstr}.
       </div>
     );
   }
