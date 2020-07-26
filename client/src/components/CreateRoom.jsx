@@ -2,58 +2,101 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 
-import CharacterButton from "./utils/CharacterButton.jsx";
+import CharacterButton from "./CharacterButton.jsx";
+import { parseJSON, checkStatus } from "./utils";
 
-const charactersMapping = {
-  seer: "預言家",
-  witch: "女巫",
-  hunter: "獵人",
-  guard: "守衛",
-  wolf: "狼人",
-  wolfKing: "狼王",
-  whiteWolfKing: "白狼王",
-  wolfBeauty: "狼美人",
-  villager: "平民",
-};
+function sum(obj) {
+  var sum = 0;
+  for (var el in obj) {
+    if (obj.hasOwnProperty(el)) {
+      sum += parseFloat(obj[el]);
+    }
+  }
+  return sum;
+}
+
+function checkValid(characters, board) {
+  for (const key in characters) {
+    if (key in board) {
+      if (characters[key] !== board[key]) {
+        return false;
+      }
+    } else if (characters[key] !== 0) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export default class CreateRoom extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isValidRoom: true, // if current setup is valid or not
+      isValidRoom: false, // if current setup is valid or not
       roomid: "",
       time: 120,
-      players: 12,
-      characters: {
-        seer: 0,
-        witch: 0,
-        hunter: 0,
-        guard: 0,
-        idiot: 0,
-        wolfKing: 0,
-        whiteWolfKing: 0,
-        wolfBeauty: 0,
-        wolf: 0,
-        villager: 0,
-      },
+      players: 0,
+      characters: {},
+      charactersMapping: {},
+      boards: {},
       hasResult: false, // if the result is returned or not
     };
   }
 
-  addNumber = (name) => {
-    this.setState((prevState) => {
-      let characters = prevState.characters;
-      characters[name] += 1;
-      return { characters: characters };
-    });
+  componentDidMount() {
+    fetch(`http://localhost:3001/api/characters`, {
+      method: "GET",
+      accept: "application: json",
+      mode: "cors",
+    })
+      .then(checkStatus)
+      .then(parseJSON)
+      .then((data) => {
+        let characters = {};
+        Object.keys(data).forEach((key) => {
+          characters[key] = 0;
+        });
+        this.setState({ characters: characters, charactersMapping: data });
+      })
+      .catch((err) => {
+        console.log("Fetch character error " + err);
+      });
+
+    fetch(`http://localhost:3001/api/boards`, {
+      method: "GET",
+      accept: "application: json",
+      mode: "cors",
+    })
+      .then(checkStatus)
+      .then(parseJSON)
+      .then((data) => {
+        this.setState({ boards: data });
+      })
+      .catch((err) => {
+        console.log("Fetch character error " + err);
+      });
+  }
+
+  setCharNumber = (name, value) => {
+    this.setState(
+      (prevState) => {
+        let characters = prevState.characters;
+        characters[name] = parseInt(value);
+        const players = sum(characters);
+        return { characters: characters, players: players };
+      },
+      () => this.validateRoom()
+    );
   };
 
-  deductNumber = (name) => {
-    this.setState((prevState) => {
-      let characters = prevState.characters;
-      characters[name] -= 1;
-      return { characters: characters };
-    });
+  validateRoom = () => {
+    for (const key in this.state.boards) {
+      if (checkValid(this.state.characters, this.state.boards[key])) {
+        this.setState({ isValidRoom: true });
+        console.log("Found equal room!");
+        break;
+      }
+    }
   };
 
   onClickCreateRoom = () => {
@@ -82,32 +125,59 @@ export default class CreateRoom extends React.Component {
       });
   };
 
+  onClickSetBoard = (key) => {
+    const board = this.state.boards[key];
+    let characters = this.state.characters;
+    for (const character in characters) {
+      if (character in board) {
+        characters[character] = board[character];
+      } else {
+        characters[character] = 0;
+      }
+    }
+    this.setState({ characters: characters, isValidRoom: true });
+  };
+
   render = () => {
-    let listItems = Object.entries(charactersMapping).map(([key, value], i) => (
+    let existingBoards = Object.keys(this.state.boards).map((key) => (
+      <Button
+        className="mr-1 mb-1"
+        size="md"
+        variant="outline-info"
+        onClick={() => {
+          this.onClickSetBoard(key);
+        }}
+      >
+        {key}
+      </Button>
+    ));
+    let listItems = Object.entries(
+      this.state.charactersMapping
+    ).map(([key, value], i) => (
       <CharacterButton
         key={i}
         cname={value}
         name={key}
         number={this.state.characters[key]}
-        addNumber={this.addNumber}
-        deductNumber={this.deductNumber}
+        setCharNumber={this.setCharNumber}
       />
     ));
     return (
       <Container className="p-3">
         <div className="text-center">
-          
-            {listItems}
-            <Button
-              size="lg"
-              disabled={!this.state.isValidRoom}
-              onClick={this.onClickCreateRoom}
-            >
-              創造房間
-            </Button>
-            {this.state.hasResult ? (
-              <div>房間 {this.state.roomid} 已創造。</div>
-            ) : null}
+          {existingBoards}
+          {listItems}
+          <Button
+            size="lg"
+            disabled={!this.state.isValidRoom}
+            onClick={this.onClickCreateRoom}
+          >
+            創造房間
+          </Button>
+          {this.state.isValidRoom ? null : <div>房間不符合已存在的板子。</div>}
+          {this.state.hasResult ? (
+            <div>房間 {this.state.roomid} 已創造。</div>
+          ) : null}
         </div>
       </Container>
     );

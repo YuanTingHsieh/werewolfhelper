@@ -1,0 +1,35 @@
+{
+    "十人速推局": {
+        "seer": 1,
+        "witch": 1,
+        "hunter": 1,
+        "wolf": 3,
+        "villager": 4
+    },
+    "十二人標準局": {
+        "seer": 1,
+        "witch": 1,
+        "hunter": 1,
+        "idiot": 1,
+        "wolf": 4,
+        "villager": 4
+    },
+    "十二人狼王守衛": {
+        "seer": 1,
+        "witch": 1,
+        "hunter": 1,
+        "guard": 1,
+        "wolf": 3,
+        "wolfKing": 1,
+        "villager": 4
+    },
+    "十二人守墓人石像鬼": {
+        "seer": 1,
+        "witch": 1,
+        "hunter": 1,
+        "tombKeeper": 1,
+        "wolf": 3,
+        "gargoyle": 1,
+        "villager": 4
+    }
+}

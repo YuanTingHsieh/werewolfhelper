@@ -2,8 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
+const fs = require('fs');
 
 let rooms = {};
+let boardPath = './data/boards.json';
+let characterPath = './data/characters.json';
+let boardData = JSON.parse(fs.readFileSync(boardPath));
+let characterData = JSON.parse(fs.readFileSync(characterPath));
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,6 +23,14 @@ app.set("port", process.env.PORT || 3001);
 if (process.env.NODE_ENV === "production") {
   app.use(static("client/build"));
 }
+
+app.get("/api/boards", (req, res) => {
+  res.json(boardData);
+});
+
+app.get("/api/characters", (req, res) => {
+  res.json(characterData);
+});
 
 app.get("/api/rooms", (req, res) => {
   res.json({"rooms": Object.keys(rooms)});

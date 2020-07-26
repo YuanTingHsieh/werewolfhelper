@@ -8,16 +8,16 @@ export default class CharacterButton extends React.Component {
   handleChange = (evt) => {
     const value = evt.target.value;
     if (!isNaN(value) && value > 0) {
-      this.props.setItemQty(value);
+      this.props.setCharNumber(this.props.name, value);
     }
   };
 
   onClickAdd = () => {
-    this.props.addNumber(this.props.name);
+    this.props.setCharNumber(this.props.name, this.props.number + 1);
   };
 
   onClickDeduct = () => {
-    this.props.deductNumber(this.props.name);
+    this.props.setCharNumber(this.props.name, this.props.number - 1);
   };
 
   render() {
@@ -26,17 +26,18 @@ export default class CharacterButton extends React.Component {
         <InputGroup className="mb-3">
           <InputGroup.Prepend>
             {this.props.number > 0 ? (
-              <Button disabled="true">{this.props.cname}</Button>
+              <Button disabled={true} variant="secondary">{this.props.cname}</Button>
             ) : (
-              <Button disabled="true" variant="outline-primary">
+              <Button disabled={true} variant="outline-secondary">
                 {this.props.cname}
               </Button>
             )}
-            <Button onClick={this.onClickDeduct}> - </Button>
+            <Button onClick={this.onClickDeduct} disabled={this.props.number === 0}> - </Button>
           </InputGroup.Prepend>
           <FormControl
             aria-label="Small"
             aria-describedby="inputGroup-sizing-sm"
+            type="number"
             value={this.props.number}
             onChange={this.handleChange}
           />

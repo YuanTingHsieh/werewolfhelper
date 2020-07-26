@@ -1,30 +1,34 @@
-import React from 'react';
+import React from "react";
+import InputGroup from "react-bootstrap/InputGroup";
+import FormControl from "react-bootstrap/FormControl";
+import Container from "react-bootstrap/Container";
+import Jumbotron from "react-bootstrap/Jumbotron";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 
-const charactersMapping = {
-  seer: "預言家",
-  witch: "女巫",
-  hunter: "獵人",
-  guard: "守衛",
-  wolf: "狼人",
-  wolfKing: "狼王",
-  whiteWolfKing: "白狼王",
-  wolfBeauty: "狼美人",
-  villager: "平民",
-};
+import { parseJSON, checkStatus } from "./utils";
 
-function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
-  const error = new Error(`HTTP Error ${response.statusText}`);
-  error.status = response.statusText;
-  error.response = response;
-  console.log(error); // eslint-disable-line no-console
-  throw error;
-}
+function PlayerPosition(props) {
+  let handleChange = (evt) => {
+    const value = evt.target.value;
+    props.setPlayerName(props.number, value);
+  };
 
-function parseJSON(response) {
-  return response.json();
+  return (
+    <Col>
+      <InputGroup className="mb-3">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.number + 1}</InputGroup.Text>
+        </InputGroup.Prepend>
+        <FormControl
+          aria-label="Small"
+          aria-describedby="inputGroup-sizing-sm"
+          value={props.name}
+          onChange={handleChange}
+        />
+      </InputGroup>
+    </Col>
+  );
 }
 
 export default class GameRoom extends React.Component {
@@ -32,33 +36,58 @@ export default class GameRoom extends React.Component {
     super(props);
     this.state = {
       valid: false,
-      players: 0,
+      players: Array(12).fill("你的名字"),
+      numPlayers: 0,
       characters: {},
+      charactersMapping: {},
     };
   }
 
   componentDidMount = () => {
-    fetch(`http://localhost:3001/api/room?roomid=${this.props.match.params.roomid}`, {
-      method: "GET",
-      accept: "application: json",
-      mode: "cors"
-    })
+    fetch(
+      `http://localhost:3001/api/room?roomid=${this.props.match.params.roomid}`,
+      {
+        method: "GET",
+        accept: "application: json",
+        mode: "cors",
+      }
+    )
       .then(checkStatus)
       .then(parseJSON)
-      .then(data => {
+      .then((data) => {
         console.log(data);
         this.setState({
           valid: true,
-          players: data['players'],
-          characters: data['characters']
-        })
+          numPlayers: data["players"],
+          characters: data["characters"],
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log("Error " + err);
-      })
+      });
 
-    
-  }
+    fetch(`http://localhost:3001/api/characters`, {
+      method: "GET",
+      accept: "application: json",
+      mode: "cors",
+    })
+      .then(checkStatus)
+      .then(parseJSON)
+      .then((data) => {
+        this.setState({ charactersMapping: data });
+      })
+      .catch((err) => {
+        console.log("Fetch character error " + err);
+      });
+  };
+
+  setPlayerName = (number, name) => {
+    this.setState((prevState) => {
+      let players = prevState.players;
+      players[number] = name;
+      return { players: players };
+    });
+  };
 
   render = () => {
     if (!this.state.valid)
@@ -66,16 +95,29 @@ export default class GameRoom extends React.Component {
         <div>房間 {this.props.match.params.roomid} 不存在。 請先創建房間。</div>
       );
     let boardstr = "";
-    Object.keys(this.state.characters).forEach(k => {
+    Object.keys(this.state.characters).forEach((k) => {
       let number = this.state.characters[k];
-      boardstr += number > 0 ? (charactersMapping[k] + number) : "";
-    })
+      boardstr += number > 0 ? this.state.charactersMapping[k] + number : "";
+    });
+    let panel = [];
+    for (let i = 0; i < 12; i += 2) {
+      panel.push(
+        <Row key={i}>
+          <PlayerPosition number={i} name={this.state.players[i]} setPlayerName={this.setPlayerName} />
+          <PlayerPosition number={i + 1} name={this.state.players[i + 1]} setPlayerName={this.setPlayerName} />
+        </Row>
+      );
+    }
     return (
-      <div>
-        This is room {this.props.match.params.roomid}.
-        We have {this.state.players} players.
-        Board {boardstr}.
-      </div>
+      <Container className="p-3">
+        <Jumbotron>
+          <h3 className="header">
+            This is room {this.props.match.params.roomid}. We have{" "}
+            {this.state.numPlayers} players. Board {boardstr}.
+          </h3>
+          {panel}
+        </Jumbotron>
+      </Container>
     );
-  }
+  };
 }
