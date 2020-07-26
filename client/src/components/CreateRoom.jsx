@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
+import { Link } from "react-router-dom";
 
 import CharacterButton from "./CharacterButton.jsx";
 import { parseJSON, checkStatus } from "./utils";
@@ -44,7 +45,7 @@ export default class CreateRoom extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`http://localhost:3001/api/characters`, {
+    fetch(`/api/characters`, {
       method: "GET",
       accept: "application: json",
       mode: "cors",
@@ -62,7 +63,7 @@ export default class CreateRoom extends React.Component {
         console.log("Fetch character error " + err);
       });
 
-    fetch(`http://localhost:3001/api/boards`, {
+    fetch(`/api/boards`, {
       method: "GET",
       accept: "application: json",
       mode: "cors",
@@ -100,7 +101,7 @@ export default class CreateRoom extends React.Component {
   };
 
   onClickCreateRoom = () => {
-    fetch(`http://localhost:3001/api/room`, {
+    fetch(`/api/room`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,6 +142,7 @@ export default class CreateRoom extends React.Component {
   render = () => {
     let existingBoards = Object.keys(this.state.boards).map((key) => (
       <Button
+        key={key}
         className="mr-1 mb-1"
         size="md"
         variant="outline-info"
@@ -162,6 +164,7 @@ export default class CreateRoom extends React.Component {
         setCharNumber={this.setCharNumber}
       />
     ));
+    let roomStr = "/room/" + this.state.roomid;
     return (
       <Container className="p-3">
         <div className="text-center">
@@ -176,7 +179,9 @@ export default class CreateRoom extends React.Component {
           </Button>
           {this.state.isValidRoom ? null : <div>房間不符合已存在的板子。</div>}
           {this.state.hasResult ? (
-            <div>房間 {this.state.roomid} 已創造。</div>
+            <Link to={roomStr}>
+              <Button size="lg">進入房間 {this.state.roomid} </Button>
+            </Link>
           ) : null}
         </div>
       </Container>

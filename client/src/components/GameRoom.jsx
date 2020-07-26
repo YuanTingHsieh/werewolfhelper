@@ -44,14 +44,11 @@ export default class GameRoom extends React.Component {
   }
 
   componentDidMount = () => {
-    fetch(
-      `http://localhost:3001/api/room?roomid=${this.props.match.params.roomid}`,
-      {
-        method: "GET",
-        accept: "application: json",
-        mode: "cors",
-      }
-    )
+    fetch(`/api/room?roomid=${this.props.match.params.roomid}`, {
+      method: "GET",
+      accept: "application: json",
+      mode: "cors",
+    })
       .then(checkStatus)
       .then(parseJSON)
       .then((data) => {
@@ -66,7 +63,7 @@ export default class GameRoom extends React.Component {
         console.log("Error " + err);
       });
 
-    fetch(`http://localhost:3001/api/characters`, {
+    fetch(`/api/characters`, {
       method: "GET",
       accept: "application: json",
       mode: "cors",
@@ -103,8 +100,16 @@ export default class GameRoom extends React.Component {
     for (let i = 0; i < 12; i += 2) {
       panel.push(
         <Row key={i}>
-          <PlayerPosition number={i} name={this.state.players[i]} setPlayerName={this.setPlayerName} />
-          <PlayerPosition number={i + 1} name={this.state.players[i + 1]} setPlayerName={this.setPlayerName} />
+          <PlayerPosition
+            number={i}
+            name={this.state.players[i]}
+            setPlayerName={this.setPlayerName}
+          />
+          <PlayerPosition
+            number={i + 1}
+            name={this.state.players[i + 1]}
+            setPlayerName={this.setPlayerName}
+          />
         </Row>
       );
     }
