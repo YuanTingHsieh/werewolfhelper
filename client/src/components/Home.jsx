@@ -44,11 +44,12 @@ class JoinRoom extends React.Component {
   };
 }
 
-const HomePage = () => {
+const HomePage = (props) => {
   return (
     <Container className="p-3">
       <Jumbotron>
         <h1 className="header">狼人殺面殺助手v1</h1>
+        <h1 className="header">你好，{props.username}</h1>
 
         <div className="text-center">
           <Link to="/createroom">

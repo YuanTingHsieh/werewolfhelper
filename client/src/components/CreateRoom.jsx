@@ -129,14 +129,20 @@ export default class CreateRoom extends React.Component {
   onClickSetBoard = (key) => {
     const board = this.state.boards[key];
     let characters = this.state.characters;
+    let players = 0;
     for (const character in characters) {
       if (character in board) {
         characters[character] = board[character];
+        players += parseInt(board[character]);
       } else {
         characters[character] = 0;
       }
     }
-    this.setState({ characters: characters, isValidRoom: true });
+    this.setState({
+      characters: characters,
+      isValidRoom: true,
+      players: players,
+    });
   };
 
   render = () => {

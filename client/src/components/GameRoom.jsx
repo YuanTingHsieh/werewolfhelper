@@ -116,10 +116,14 @@ export default class GameRoom extends React.Component {
     return (
       <Container className="p-3">
         <Jumbotron>
-          <h3 className="header">
-            This is room {this.props.match.params.roomid}. We have{" "}
-            {this.state.numPlayers} players. Board {boardstr}.
-          </h3>
+          <Row>
+            <Col>
+              房間ID: {this.props.match.params.roomid}
+            </Col>
+            <Col>
+              版子: {boardstr}.
+            </Col>
+          </Row>
           {panel}
         </Jumbotron>
       </Container>
